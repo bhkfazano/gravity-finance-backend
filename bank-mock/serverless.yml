@@ -1,0 +1,116 @@
+service: bank-mock
+
+frameworkVersion: ">=2.24.0"
+
+plugins:
+    - serverless-python-requirements
+
+package:
+    exclude:
+        - node_modules/**
+        - .idea/**
+        - .requirements/**
+        - env/**
+        - README.md
+        - package.json
+        - package-lock.json
+        - requirements.txt
+
+provider:
+    name: aws
+    runtime: python3.9
+    region: us-east-1
+    profile: pycvm-profile
+    environment:
+        REGION: ${self:provider.region}
+        DYNAMODB_STATEMENT_TABLE: ${self:service}-statement-${opt:stage, 'dev'}
+        DYNAMODB_CLIENT_TABLE: ${self:service}-client-${opt:stage, 'dev'}
+        JWT_SECRET: 52d3f853c19f8b63fdsac0918cfdsad126422aa2d99b1aefdsa33ecfasd63d41dea4fadf19406e54
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-statement-${opt:stage, 'dev'}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-client-${opt:stage, 'dev'}
+
+functions:
+
+    GetStatement:
+        handler: statement/get.get
+        events:
+            - http:
+                path: statement/get/{cpf}
+                method: get
+                cors: true
+
+    CreateStatement:
+        handler: statement/create.create
+        events:
+            - http:
+                path: statement/create
+                method: post
+                cors: true
+
+    GetClient:
+        handler: client/get.get
+        events:
+            - http:
+                path: client/get/{cpf}
+                method: get
+                cors: true
+    
+    CreateClient:
+        handler: client/create.create
+        events:
+            - http:
+                path: client/create
+                method: post
+                cors: true
+
+    AuthenticateClient:
+        handler: client/authenticate.authenticate
+        events:
+            - http:
+                path: client/authenticate
+                method: post
+                cors: true
+
+resources:
+    Resources:    
+        StatementsTable:
+            Type: 'AWS::DynamoDB::Table'
+            DeletionPolicy: Retain
+            Properties:
+                TableName: ${self:provider.environment.DYNAMODB_STATEMENT_TABLE}
+                BillingMode: PAY_PER_REQUEST
+                AttributeDefinitions:
+                    - 
+                        AttributeName: statement_id
+                        AttributeType: S
+                    - 
+                        AttributeName: cpf
+                        AttributeType: S
+                KeySchema:
+                    -
+                        AttributeName: statement_id
+                        KeyType: HASH
+                    -
+                        AttributeName: cpf
+                        KeyType: RANGE
+   
+        ClientsTable:
+            Type: 'AWS::DynamoDB::Table'
+            DeletionPolicy: Retain
+            Properties:
+                TableName: ${self:provider.environment.DYNAMODB_CLIENT_TABLE}
+                BillingMode: PAY_PER_REQUEST
+                AttributeDefinitions:
+                    - 
+                        AttributeName: cpf
+                        AttributeType: S
+                KeySchema:
+                    -
+                        AttributeName: cpf
+                        KeyType: HASH
+   
