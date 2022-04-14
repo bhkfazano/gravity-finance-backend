@@ -25,7 +25,7 @@ def get(event, context):
         print(e)
         return failure({"Error getting job data" : e})
 
-    if 'Items' not in entries or len(entries['Items']) == 0:
+    if 'Items' not in entries:
         return notfound("No entries found for the specified cpf")
 
     return success(entries['Items'])

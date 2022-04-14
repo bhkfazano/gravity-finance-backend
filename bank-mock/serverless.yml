@@ -1,4 +1,4 @@
-service: bank-mock
+service: btg
 
 frameworkVersion: ">=2.24.0"
 
@@ -40,7 +40,7 @@ functions:
         handler: statement/get.get
         events:
             - http:
-                path: statement/get/{cpf}
+                path: btg/statement/get/{cpf}
                 method: get
                 cors: true
 
@@ -48,7 +48,7 @@ functions:
         handler: statement/create.create
         events:
             - http:
-                path: statement/create
+                path: btg/statement/create
                 method: post
                 cors: true
 
@@ -56,7 +56,15 @@ functions:
         handler: client/get.get
         events:
             - http:
-                path: client/get/{cpf}
+                path: btg/client/get/{cpf}
+                method: get
+                cors: true
+
+    GetClientCode:
+        handler: client/get_code.get_code
+        events:
+            - http:
+                path: btg/client/get_code/{cpf}
                 method: get
                 cors: true
     
@@ -64,7 +72,7 @@ functions:
         handler: client/create.create
         events:
             - http:
-                path: client/create
+                path: btg/client/create
                 method: post
                 cors: true
 
@@ -72,7 +80,7 @@ functions:
         handler: client/authenticate.authenticate
         events:
             - http:
-                path: client/authenticate
+                path: btg/client/authenticate
                 method: post
                 cors: true
 

@@ -6,7 +6,7 @@ import os
 
 def authenticate(event, context):
     """
-    Receives cpf and password and returns a jwt
+    Receives an access code and a cpf and password and returns a jwt
     """
     
     body = json.loads(event['body'])
@@ -22,10 +22,9 @@ def authenticate(event, context):
         return failure({"Error getting client data": e})
 
     if client:
-        print(client)
-        if decode_jwt(client['Item']['password'])['password'] == body['password']:
+        if decode_jwt(client['Item']['access_code'])['access_code'] == body['access_code']:
             return success(create_jwt({'cpf':client['Item']['cpf']}))
         else:
-            return failure({"Error": "Invalid password"})
+            return failure({"Error": "Invalid code"})
 
 

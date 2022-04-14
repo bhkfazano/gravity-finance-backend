@@ -2,6 +2,7 @@ from libs.response import failure, success, missingData
 from libs.auth import create_jwt
 from decimal import Decimal
 import datetime
+import random
 import boto3
 import uuid
 import json
@@ -13,7 +14,8 @@ def create(event, body):
     Creates a entry on the clients' dynamodb table
     Body format: {
         "cpf": "string",
-        "password": "string"
+        "password": "string",
+        "name": "string",
     }
     """
 
@@ -27,6 +29,8 @@ def create(event, body):
     item = {
         "cpf": body['cpf'],
         "password": create_jwt({'password' : body['password']}),
+        "name": body['name'],
+        "access_code": create_jwt({"access_code": ''.join(random.sample('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6))}),
         "created_at" : datetime.datetime.now().isoformat(),
         "updated_at" : datetime.datetime.now().isoformat()
     }
